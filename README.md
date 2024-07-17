@@ -24,40 +24,39 @@ At the core of Cora's development is the philosophy of Heart Centered AI, which 
 
 ### Prototype Release (cli)
 
-- Basic cli interface with text input and output via rich
-- Basic conversation history and context awareness (memory)
-- Real time web searching (Exa, Tivaly, Perplexity)
-- Simple agent with tools
-- Pre-processing user query for enhanced prompt engineering
-- Integration with Zep for chat history
-- Integration with multiple language models (Claude, GPT-4o, Gemini)
-- Intelligent model selection based on query type
+- [x] Basic cli interface with text input and output via rich
+- [ ] Real time web searching (Exa, Tivaly, Perplexity)
+- [x] Simple agent with tools
+- [x] Pre-processing user query for enhanced prompt engineering
+- [ ] Integration with Zep for chat history
+- [x] Integration with multiple language models (Claude, GPT-4o, Gemini)
+- [ ] Intelligent model selection based on query type
 
 ### Web Frontend Release: Foundation (on par with ChatGPT)
 
-- React frontend with components from langui.dev
-- Login with Google
-- Basic personal data integration (location, preferences)
-- Voice input
+- [ ] React frontend with components from langui.dev
+- [ ] Login with Google
+- [ ] Basic personal data integration (location, preferences)
+- [ ] Voice input
 
 ### Beta Release
 
-- Customizable AI agent sophistication levels (dynamically created agents)
-- Multi-agent conversations with multiple perspectives
+- [ ] Customizable AI agent sophistication levels (dynamically created agents)
+- [ ] Multi-agent conversations with multiple perspectives
 
 ### Version 1.0 (release to friends)
 
-- Integration with Google services (Calendar, Contacts, Photos)
-- Secure access to advanced tools (e.g., Python shell for trusted users)
-- Full integration with social media platforms and task management tools
+- [ ] Integration with Google services (Calendar, Contacts, Photos)
+- [ ] Secure access to advanced tools (e.g., Python shell for trusted users)
+- [ ] Full integration with social media platforms and task management tools
 
 ### Someday
 
-- Comprehensive personal data analysis and insights (AI Chief of Life Officer)
-- Integration with signed in browser profile (ala Multi-On) for logged in web tasks
-- Auto-journaling and life-logging capabilities
-- AI-driven project management and execution of complex tasks
-- Collaborative AI sessions for multiple users
+- [ ] Comprehensive personal data analysis and insights (AI Chief of Life Officer)
+- [ ] Integration with signed in browser profile (ala Multi-On) for logged in web tasks
+- [ ] Auto-journaling and life-logging capabilities
+- [ ] AI-driven project management and execution of complex tasks
+- [ ] Collaborative AI sessions for multiple users
 
 ## Technology Stack
 
