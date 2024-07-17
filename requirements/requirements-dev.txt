@@ -2,6 +2,9 @@
 -r requirements.txt
 -r requirements-test.txt
 
+# For cli installation (pip install .)
+setuptools
+
 # For committing, formatting, and dependency management
 black
 isort
