@@ -81,10 +81,15 @@ def cli(llm_provider, query, verbosity):
                             human_input = ""
 
                 # Pre-process query with Groq API
-                with Progress() as progress:
-                    task = progress.add_task("[green]Pre-processing query...", total=100)
+                with Progress(
+                    SpinnerColumn(),
+                    TextColumn("[progress.description]{task.description}"),
+                    console=console,
+                    transient=True,
+                ) as progress:
+                    task = progress.add_task(description="Pre-processing query...", total=None)
                     enhanced_query = SI.prompt_engineer(human_input)
-                    progress.update(task, completed=100)
+                    progress.update(task, completed=True)
                 console.print(Markdown(f"**Enhanced query:** {enhanced_query.content}"))
 
                 # Execute query with progress spinner
@@ -111,10 +116,15 @@ def cli(llm_provider, query, verbosity):
 
 def process_query(query, agent_graph, config, llm_provider):
     # Pre-process query with Groq API
-    with Progress() as progress:
-        task = progress.add_task("[green]Pre-processing query...", total=100)
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console,
+        transient=True,
+    ) as progress:
+        task = progress.add_task(description="Pre-processing query...", total=None)
         enhanced_query = SI.prompt_engineer(query)
-        progress.update(task, completed=100)
+        progress.update(task, completed=True)
     console.print(Markdown(f"**Enhanced query:** {enhanced_query.content}"))
 
     # Execute query with progress spinner
