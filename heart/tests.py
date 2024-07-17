@@ -13,7 +13,7 @@ def mock_env_vars(monkeypatch):
 
 @pytest.mark.parametrize("provider", SI.LLM_PROVIDERS)
 def test_check_api_key_valid(mock_env_vars, provider):
-    assert SI.check_api_key(provider)
+    assert SI.check_api_key(provider), f"API key check failed for provider: {provider}"
 
 
 def test_check_api_key_invalid():
@@ -39,7 +39,9 @@ def test_check_api_key_missing(monkeypatch, provider):
 )
 def test_get_chat_model(mock_env_vars, provider, expected_class):
     model = SI.get_chat_model(provider)
-    assert isinstance(model, expected_class)
+    assert isinstance(
+        model, expected_class
+    ), f"Expected {expected_class.__name__} for provider {provider}, but got {type(model).__name__}"
 
 
 def test_get_chat_model_invalid():
@@ -49,7 +51,7 @@ def test_get_chat_model_invalid():
 
 def test_create_tools():
     tools_with_search = SI.create_tools({})
-    assert len(tools_with_search) >= 1
+    assert len(tools_with_search) >= 1, f"Expected at least 1 tool, but got {len(tools_with_search)}"
 
 
 @pytest.mark.parametrize("provider", SI.LLM_PROVIDERS)
@@ -61,4 +63,4 @@ def test_create_agent_graph(mock_env_vars, provider):
     settings = {"llm_provider": provider, "search_web": True}
     graph = SI.create_agent_graph(settings)
 
-    assert graph is not None
+    assert graph is not None, f"Agent graph creation failed for provider: {provider}"

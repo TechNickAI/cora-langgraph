@@ -4,4 +4,5 @@ langchain_anthropic
 langchain_community
 langchain_groq
 langchain_openai
+prompt_toolkit
 rich
