@@ -49,6 +49,7 @@ def cli(llm_provider, query, verbosity):
     # Set up settings for the agent
     settings = {
         "llm_provider": llm_provider,
+        "format_instructions": "The response will be displayed in a terminal using markdown via the rich library",
     }
 
     # Create agent graph

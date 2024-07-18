@@ -56,8 +56,12 @@ class SI:
         memory = MemorySaver()
 
         tools = SI.create_tools(settings)
+        if "format_instructions" in settings:
+            messages_modifer = assistant_prompt_text + " " + settings["format_instructions"]
+        else:
+            messages_modifer = assistant_prompt_text
 
-        return create_react_agent(model=llm, tools=tools, checkpointer=memory, messages_modifier=assistant_prompt_text)
+        return create_react_agent(model=llm, tools=tools, checkpointer=memory, messages_modifier=messages_modifer)
 
     @staticmethod
     def create_tools(settings):
