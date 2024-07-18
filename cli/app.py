@@ -34,12 +34,12 @@ session = PromptSession(
     "--llm-provider",
     type=click.Choice(SI.LLM_PROVIDERS),
     default=SI.ANTHROPIC,
-    help="The language model provider to use.",
+    help="Which LLM provider to use",
 )
-@click.option("-q", "--query", help="The query to ask the AI assistant.")
-@click.option("-v", "--verbosity", count=True, help="Increase output verbosity.")
+@click.option("-q", "--query", help="What would you like to chat about? 😊")
+@click.option("-v", "--verbosity", count=True, help="Let's get more detailed! 🔍")
 def cli(llm_provider, query, verbosity):
-    """Cora: Heart Centered AI Assistant"""
+    """Cora: Your Heart-Centered AI Companion 💙"""
 
     try:
         SI.check_api_key(llm_provider)
@@ -66,7 +66,7 @@ def cli(llm_provider, query, verbosity):
         while True:
             try:
                 # Prompt for user input with heart emoji and LLM provider
-                prompt = f"🤖 Cora 💙 ({llm_provider})> "
+                prompt = f"💙 Cora ({llm_provider})> "
                 human_input = session.prompt(prompt, default="")
 
                 if human_input.lower() == "\\q":
@@ -89,10 +89,10 @@ def cli(llm_provider, query, verbosity):
                     console=console,
                     transient=True,
                 ) as progress:
-                    task = progress.add_task(description="Pre-processing query...", total=None)
+                    task = progress.add_task(description="Pondering your thoughts... 🤔", total=None)
                     enhanced_query = SI.prompt_engineer(human_input)
                     progress.update(task, completed=True)
-                console.print(Markdown(f"**Enhanced query:** {enhanced_query.content}"))
+                console.print(Markdown(f"**I understand you're asking about:** {enhanced_query.content}"))
 
                 # Execute query with progress spinner
                 with Progress(
@@ -101,20 +101,20 @@ def cli(llm_provider, query, verbosity):
                     console=console,
                     transient=True,
                 ) as progress:
-                    task = progress.add_task(description="Cora is thinking...", total=None)
+                    task = progress.add_task(description="Crafting a heartfelt response... 💭", total=None)
                     response = agent_graph.invoke({"messages": [HumanMessage(content=enhanced_query.content)]}, config)
                     parsed_response = SI.parse_response(response)
                     progress.update(task, completed=True)
 
                 # Display response
-                console.print(Markdown(f"**Response:**\n\n{parsed_response}"))
+                console.print(Markdown(f"**Here's what I think:**\n\n{parsed_response}"))
 
             except KeyboardInterrupt:
                 continue
             except EOFError:
                 break
 
-    click.echo(click.style("Thank you for using Cora! Have a heart-centered day! 💙", fg="cyan", bold=True))
+    click.echo(click.style("It was a joy chatting with you! 💙", fg="cyan", bold=True))
 
 
 def process_query(query, agent_graph, config, llm_provider):
@@ -125,10 +125,10 @@ def process_query(query, agent_graph, config, llm_provider):
         console=console,
         transient=True,
     ) as progress:
-        task = progress.add_task(description="Pre-processing query...", total=None)
+        task = progress.add_task(description="Pondering your thoughts... 🤔", total=None)
         enhanced_query = SI.prompt_engineer(query)
         progress.update(task, completed=True)
-    console.print(Markdown(f"**Enhanced query:** {enhanced_query.content}"))
+    console.print(Markdown(f"**I understand you're asking about:** {enhanced_query.content}"))
 
     # Execute query with progress spinner
     with Progress(
@@ -137,12 +137,12 @@ def process_query(query, agent_graph, config, llm_provider):
         console=console,
         transient=True,
     ) as progress:
-        task = progress.add_task(description="Cora is thinking...", total=None)
+        task = progress.add_task(description="Crafting a heartfelt response... 💭", total=None)
         response = agent_graph.invoke({"messages": [HumanMessage(content=enhanced_query.content)]}, config)
         progress.update(task, completed=True)
 
     # Display response
-    console.print(Markdown(f"**Response:**\n\n{response['messages'][-1].content}"))
+    console.print(Markdown(f"**Here's what I think:**\n\n{response['messages'][-1].content}"))
 
 
 if __name__ == "__main__":
