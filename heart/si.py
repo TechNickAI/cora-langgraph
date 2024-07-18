@@ -28,7 +28,7 @@ class SI:
             "default_temperature": 0.7,
         },
         GROQ: {
-            "model": "mixtral-8x7b-32768",
+            "model": "llama3-70b-8192",
             "api_key_env": "GROQ_API_KEY",
             "default_temperature": 0.7,
         },
