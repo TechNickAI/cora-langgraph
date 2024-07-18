@@ -16,11 +16,4 @@ Ensure your optimized for LLM processing, considering advanced prompt engineerin
 * Task-specific prompts
 * Topical prompting
 * Prompt tuning
-
-Respond only with the enhanced request, and nothing else, no quotes or comments, like this example:
-User query: what is the answer to everything?
-Could you provide an answer to the philosophical question, as famously posed in Douglas Adams' "The
-Hitchhiker's Guide to the Galaxy," regarding the ultimate meaning or purpose of life, the universe, and everything?
-
-User query:
 """

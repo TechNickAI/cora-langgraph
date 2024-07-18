@@ -92,7 +92,7 @@ def cli(llm_provider, query, verbosity):
                     task = progress.add_task(description="Pondering your thoughts... 🤔", total=None)
                     enhanced_query = SI.prompt_engineer(human_input)
                     progress.update(task, completed=True)
-                console.print(Markdown(f"**I understand you're asking about:** {enhanced_query.content}"))
+                console.print(Markdown(f"**I understand you're asking about:** {enhanced_query}"))
 
                 # Execute query with progress spinner
                 with Progress(
@@ -102,7 +102,7 @@ def cli(llm_provider, query, verbosity):
                     transient=True,
                 ) as progress:
                     task = progress.add_task(description="Crafting a heartfelt response... 💭", total=None)
-                    response = agent_graph.invoke({"messages": [HumanMessage(content=enhanced_query.content)]}, config)
+                    response = agent_graph.invoke({"messages": [HumanMessage(content=enhanced_query)]}, config)
                     parsed_response = SI.parse_response(response)
                     progress.update(task, completed=True)
 

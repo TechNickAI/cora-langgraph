@@ -2,6 +2,7 @@ from heart.prompts import assistant_prompt_text, prompt_engineer_prompt_text
 from langchain_anthropic import ChatAnthropic
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
@@ -110,12 +111,20 @@ class SI:
             return response
 
     @staticmethod
-    def prompt_engineer(user_request):
+    def prompt_engineer(user_query):
         # Take a user request, and make it better (prompt engineer it) using groq
         chat = ChatGroq(temperature=0.5, streaming=False)
 
-        human = "{user_request}"
+        class EnhancedQuery(BaseModel):
+            """Enhanced query and LLM recommendation."""
+
+            enhanced_query: str = Field(description="The improved and prompt-engineered query")
+
+        structured_chat = chat.with_structured_output(EnhancedQuery)
+
+        human = "{user_query}"
         prompt = ChatPromptTemplate.from_messages([("system", prompt_engineer_prompt_text), ("human", human)])
 
-        chain = prompt | chat
-        return chain.invoke({"user_request": user_request})
+        chain = prompt | structured_chat
+        response = chain.invoke({"user_query": user_query})
+        return response.enhanced_query
