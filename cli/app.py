@@ -8,7 +8,7 @@ from prompt_toolkit.styles import Style
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.progress import Progress, SpinnerColumn, TextColumn
-import click, tempfile, uuid
+import click, uuid
 
 # Initialize console for rich output
 console = Console()
@@ -73,13 +73,14 @@ def cli(llm_provider, query, verbosity):
                     break
 
                 if human_input.lower().endswith(r"\e"):
-                    # Open Vim for extended editing
-                    with tempfile.NamedTemporaryFile(mode="w+", suffix=".txt") as tf:
-                        tf.write(human_input.replace("\\e", ""))
-                        tf.flush()
-                        human_input = click.edit(filename=tf.name)
-                        if human_input is None:
-                            human_input = ""
+                    # Open editor for extended input
+                    initial_text = human_input.replace("\\e", "").strip()
+                    edited_input = click.edit(initial_text)
+                    if edited_input is not None:
+                        human_input = edited_input.strip()
+                    else:
+                        # User closed editor without saving, keep original input
+                        human_input = initial_text
 
                 # Pre-process query with Groq API
                 with Progress(
