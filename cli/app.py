@@ -9,7 +9,7 @@ from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
 from rich.progress import Progress, SpinnerColumn, TextColumn
-import click, uuid
+import asyncio, click, uuid
 
 # Initialize console for rich output
 console = Console()
@@ -29,7 +29,7 @@ session = PromptSession(
 )
 
 
-def process_query(query, config):
+async def process_query(query, config):
     # Pre-process query with Groq
     with Progress(
         SpinnerColumn(),
@@ -56,7 +56,7 @@ def process_query(query, config):
         # Create custom callback handler
         callback_handler = RichLiveCallbackHandler(live)
         config["callbacks"] = [callback_handler]
-        agent_graph.invoke({"messages": [HumanMessage(content=processed_query.enhanced_query)]}, config)
+        await agent_graph.ainvoke({"messages": [HumanMessage(content=processed_query.enhanced_query)]}, config)
 
 
 @click.command()
@@ -70,7 +70,7 @@ def cli(query, verbosity):
 
     if query:
         # Execute the query provided via command line
-        process_query(query, config)
+        asyncio.run(process_query(query, config))
     else:
         # Interactive mode
         while True:
@@ -93,7 +93,7 @@ def cli(query, verbosity):
                         human_input = initial_text
 
                 # Process the query
-                process_query(human_input, config)
+                asyncio.run(process_query(human_input, config))
 
             except KeyboardInterrupt:
                 continue
