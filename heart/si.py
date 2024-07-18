@@ -113,12 +113,13 @@ class SI:
     @staticmethod
     def prompt_engineer(user_query):
         # Take a user request, and make it better (prompt engineer it) using groq
-        chat = ChatGroq(temperature=0.5, streaming=False)
+        chat = ChatGroq(temperature=0.2, streaming=False)
 
         class EnhancedQuery(BaseModel):
             """Enhanced query and LLM recommendation."""
 
             enhanced_query: str = Field(description="The improved and prompt-engineered query")
+            llm_provider: str = Field(description="The recommended LLM provider for this query")
 
         structured_chat = chat.with_structured_output(EnhancedQuery)
 
@@ -126,5 +127,4 @@ class SI:
         prompt = ChatPromptTemplate.from_messages([("system", prompt_engineer_prompt_text), ("human", human)])
 
         chain = prompt | structured_chat
-        response = chain.invoke({"user_query": user_query})
-        return response.enhanced_query
+        return chain.invoke({"user_query": user_query})

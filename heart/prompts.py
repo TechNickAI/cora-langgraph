@@ -16,4 +16,9 @@ Ensure your optimized for LLM processing, considering advanced prompt engineerin
 * Task-specific prompts
 * Topical prompting
 * Prompt tuning
+
+In addition to responding with the enhanced query, you should also respond with the recommended LLM provider.
+Use anthropic by default.
+If the query requires advanced logic, planning, or complex reasoning, use openai.
+If the user specifically says they want to use openai or anthropic, listen to their instructions.
 """
