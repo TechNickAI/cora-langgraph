@@ -50,6 +50,24 @@ class SI:
         return True
 
     @staticmethod
+    def create_agent_graph(settings):
+        llm = SI.get_chat_model(settings["llm_provider"])
+        # Set up a memory saver
+        memory = MemorySaver()
+
+        tools = SI.create_tools(settings)
+
+        return create_react_agent(model=llm, tools=tools, checkpointer=memory, messages_modifier=assistant_prompt_text)
+
+    @staticmethod
+    def create_tools(settings):
+        tools = []
+
+        tools.append(TavilySearchResults())
+
+        return tools
+
+    @staticmethod
     def get_chat_model(llm_provider, temperature=None, streaming=True):
         llm_provider = llm_provider.lower()
         SI.check_api_key(llm_provider)
@@ -67,6 +85,27 @@ class SI:
             raise ValueError(f"Unknown LLM provider: {llm_provider}")
 
     @staticmethod
+    def parse_response(response):
+        if "messages" not in response:
+            return response
+
+        messages = response["messages"]
+        if len(messages) < 2:
+            return response
+
+        ai_message = messages[-1]  # Get the last message, which should be the AI's response
+
+        if isinstance(ai_message.content, str):
+            # OpenAI format
+            return ai_message.content
+        elif isinstance(ai_message.content, list):
+            # Anthropic format
+            return ai_message.content[0]["text"]
+        else:
+            # Unknown format, return as is
+            return response
+
+    @staticmethod
     def prompt_engineer(user_request):
         # Take a user request, and make it better (prompt engineer it) using groq
         chat = ChatGroq(temperature=0.5, streaming=False)
@@ -76,21 +115,3 @@ class SI:
 
         chain = prompt | chat
         return chain.invoke({"user_request": user_request})
-
-    @staticmethod
-    def create_tools(settings):
-        tools = []
-
-        tools.append(TavilySearchResults())
-
-        return tools
-
-    @staticmethod
-    def create_agent_graph(settings):
-        llm = SI.get_chat_model(settings["llm_provider"])
-        # Set up a memory saver
-        memory = MemorySaver()
-
-        tools = SI.create_tools(settings)
-
-        return create_react_agent(model=llm, tools=tools, checkpointer=memory, messages_modifier=assistant_prompt_text)

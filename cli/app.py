@@ -1,4 +1,4 @@
-from heart.si import SI
+from heart import SI
 from langchain.schema import HumanMessage
 from langchain.schema.runnable.config import RunnableConfig
 from pathlib import Path
@@ -101,10 +101,11 @@ def cli(llm_provider, query, verbosity):
                 ) as progress:
                     task = progress.add_task(description="Cora is thinking...", total=None)
                     response = agent_graph.invoke({"messages": [HumanMessage(content=enhanced_query.content)]}, config)
+                    parsed_response = SI.parse_response(response)
                     progress.update(task, completed=True)
 
                 # Display response
-                console.print(Markdown(f"**Response:**\n\n{response['messages'][-1].content}"))
+                console.print(Markdown(f"**Response:**\n\n{parsed_response}"))
 
             except KeyboardInterrupt:
                 continue
