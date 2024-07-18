@@ -1,4 +1,4 @@
-from heart import SI
+from heart.si import SI, RichLiveCallbackHandler
 from langchain.schema import HumanMessage
 from langchain.schema.runnable.config import RunnableConfig
 from pathlib import Path
@@ -6,6 +6,7 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.styles import Style
 from rich.console import Console
+from rich.live import Live
 from rich.markdown import Markdown
 from rich.progress import Progress, SpinnerColumn, TextColumn
 import click, uuid
@@ -50,20 +51,12 @@ def process_query(query, config):
     }
     agent_graph = SI.create_agent_graph(settings)
 
-    # Execute query with progress spinner
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        console=console,
-        transient=True,
-    ) as progress:
-        task = progress.add_task(description=f"Crafting a heartfelt response using {llm_provider}... 💭", total=None)
-        response = agent_graph.invoke({"messages": [HumanMessage(content=processed_query.enhanced_query)]}, config)
-        parsed_response = SI.parse_response(response)
-        progress.update(task, completed=True)
-
-    # Display response
-    console.print(Markdown(f"**Here's what I think:**\n\n{parsed_response}"))
+    # Execute query with streaming
+    with Live(Markdown(f"Crafting a response using *{llm_provider}*...")) as live:
+        # Create custom callback handler
+        callback_handler = RichLiveCallbackHandler(live)
+        config["callbacks"] = [callback_handler]
+        agent_graph.invoke({"messages": [HumanMessage(content=processed_query.enhanced_query)]}, config)
 
 
 @click.command()

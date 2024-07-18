@@ -1,4 +1,5 @@
 from heart.prompts import assistant_prompt_text, prompt_engineer_prompt_text
+from langchain.callbacks import StreamingStdOutCallbackHandler
 from langchain_anthropic import ChatAnthropic
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_core.prompts import ChatPromptTemplate
@@ -7,6 +8,8 @@ from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.prebuilt import create_react_agent
+from rich.markdown import Markdown
+from rich.panel import Panel
 import os
 
 
@@ -126,5 +129,57 @@ class SI:
         human = "{user_query}"
         prompt = ChatPromptTemplate.from_messages([("system", prompt_engineer_prompt_text), ("human", human)])
 
+        # Hard code to open AI for now
+        return EnhancedQuery(enhanced_query=user_query, llm_provider="openai")
+
         chain = prompt | structured_chat
         return chain.invoke({"user_query": user_query})
+
+
+class RichLiveCallbackHandler(StreamingStdOutCallbackHandler):
+    """Our specialized output handler that does streaming, and prints out rich.Markdown, with a few other goodies"""
+
+    def __init__(self, live):
+        super().__init__()
+        self.buffer = []
+        self.live = live
+
+    def on_llm_start(self, serialized, *args, **kwargs):
+        """Initially print a message that we are sending to the LM"""
+        message = f'Sending request to *{serialized["kwargs"]["model_name"]}*...'
+        self.live.update(Panel(Markdown(message)), refresh=True)
+
+    def on_llm_new_token(self, token, **kwargs):
+        """Print out Markdown when we get a new token, using rich.live so it updates the whole terminal"""
+        self.buffer.append(token)
+        self._redraw()
+
+    def on_tool_start(self, serialized, input_str, **kwargs):
+        tool_info = ""
+        if serialized["name"] == "tavily_search_results_json":
+            search = kwargs["inputs"]["query"]
+            tool_info = f"\n\n**Searching the web with Tavily for:** {search}\n\n"
+        else:
+            tool_info = f"\n\n**Calling tool:** {serialized['name']}\n\n"
+        self.buffer.append(tool_info)
+
+        self._redraw()
+
+    def _redraw(self):
+        self.live.update(Markdown("".join(self.buffer)), refresh=True)
+
+
+"""
+    def on_text(self, text: str, **kwargs):
+        print("got on_text with text: ", text)
+
+    def on_agent_action(self, action, **kwargs):
+        print("got on_agent_action with action: ", action)
+
+    def on_agent_finish(self, finish, **kwargs):
+        print("got on_agent_finish with finish: ", finish)
+
+    def on_chat_model_stream(self, token, **kwargs):
+        print("got on_chat_model_stream with token: ", token)
+
+"""
