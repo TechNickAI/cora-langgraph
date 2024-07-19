@@ -81,6 +81,7 @@ async def process_query(query, config):
         task = progress.add_task(description="Pondering your thoughts... 🤔", total=None)
         processed_query = SI.prompt_engineer(query)
         llm_provider = processed_query.llm_provider
+        llm_provider = "groq"
         enhanced_query = processed_query.enhanced_query
         progress.update(task, completed=True)
 

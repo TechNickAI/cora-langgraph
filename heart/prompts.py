@@ -20,5 +20,9 @@ Ensure your optimized for LLM processing, considering advanced prompt engineerin
 In addition to responding with the enhanced query, you should also respond with the recommended LLM provider.
 Use anthropic by default.
 If the query requires advanced logic, planning, or complex reasoning, use openai.
-If the user specifically says they want to use openai or anthropic, listen to their instructions.
+If a quick, lower quality answer is preferred, such as for simple queries, use groq.
+If the user specifically says they want to use openai, anthropic, or groq, listen to their instructions.
+If they say they want a fast answer, use groq.
+
+If they give hints about the model they want, strip this off and don't use it in the enhanced_query
 """

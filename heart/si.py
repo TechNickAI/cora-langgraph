@@ -58,11 +58,11 @@ class SI:
 
         tools = SI.create_tools(settings)
         if "format_instructions" in settings:
-            messages_modifer = assistant_prompt_text + " " + settings["format_instructions"]
+            messages_modifier = assistant_prompt_text + " " + settings["format_instructions"]
         else:
-            messages_modifer = assistant_prompt_text
+            messages_modifier = assistant_prompt_text
 
-        return create_react_agent(model=llm, tools=tools, checkpointer=memory, messages_modifier=messages_modifer)
+        return create_react_agent(model=llm, tools=tools, checkpointer=memory, messages_modifier=messages_modifier)
 
     @staticmethod
     def create_tools(settings):
@@ -85,7 +85,8 @@ class SI:
         elif llm_provider == SI.ANTHROPIC:
             return ChatAnthropic(model=config["model"], temperature=temp, streaming=streaming)
         elif llm_provider == SI.GROQ:
-            return ChatGroq(model=config["model"], temperature=temp, streaming=streaming)
+            # Streaming fails with astream_events with langchain_groq, so set it to False. It's fast enough.
+            return ChatGroq(model=config["model"], temperature=temp, streaming=False)
         else:
             raise ValueError(f"Unknown LLM provider: {llm_provider}")
 
@@ -113,7 +114,7 @@ class SI:
     @staticmethod
     def prompt_engineer(user_query):
         # Take a user request, and make it better (prompt engineer it) using groq
-        chat = ChatGroq(temperature=0.2, streaming=False)
+        chat = SI.get_chat_model(SI.GROQ, 0.2)
 
         class EnhancedQuery(BaseModel):
             """Enhanced query and LLM recommendation."""
