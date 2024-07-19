@@ -9,6 +9,7 @@ from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.panel import Panel
 import asyncio, click, uuid
 
 # Initialize console for rich output
@@ -55,8 +56,27 @@ async def process_query(query, config):
     with Live(Markdown(f"Crafting a response using *{llm_provider}*...")) as live:
         # Create custom callback handler
         callback_handler = RichLiveCallbackHandler(live)
-        config["callbacks"] = [callback_handler]
-        await agent_graph.ainvoke({"messages": [HumanMessage(content=processed_query.enhanced_query)]}, config)
+        # config["callbacks"] = [callback_handler]
+        # await agent_graph.ainvoke({"messages": [HumanMessage(content=processed_query.enhanced_query)]}, config)
+
+        buffer = []
+        async for event in agent_graph.astream_events(
+            {"messages": [HumanMessage(content=processed_query.enhanced_query)]},
+            config=config,
+            version="v2",
+        ):
+            if event["event"] == "on_chat_model_stream":
+                chunk = event["data"]["chunk"]
+                if isinstance(chunk.content, list):
+                    if chunk.content and chunk.content[0]["type"] == "text":
+                        buffer.append(chunk.content[0]["text"])
+                else:
+                    buffer.append(chunk.content)
+            elif event["event"] == "on_tool_start" and llm_provider == "openai":
+                if event["name"] == "tavily_search_results_json":
+                    buffer.append("Searching the web for up to date information...\n")
+
+            live.update(Markdown("".join(buffer)))
 
 
 @click.command()

@@ -130,7 +130,7 @@ class SI:
         prompt = ChatPromptTemplate.from_messages([("system", prompt_engineer_prompt_text), ("human", human)])
 
         # Hard code to open AI for now
-        return EnhancedQuery(enhanced_query=user_query, llm_provider="openai")
+        return EnhancedQuery(enhanced_query=user_query, llm_provider="anthropic")
 
         chain = prompt | structured_chat
         return chain.invoke({"user_query": user_query})
@@ -149,9 +149,19 @@ class RichLiveCallbackHandler(StreamingStdOutCallbackHandler):
         message = f'Sending request to *{serialized["kwargs"]["model_name"]}*...'
         self.live.update(Panel(Markdown(message)), refresh=True)
 
-    def on_llm_new_token(self, token, **kwargs):
+    def on_chat_model_stream(self, token, **kwargs):
         """Print out Markdown when we get a new token, using rich.live so it updates the whole terminal"""
         self.buffer.append(token)
+        print("on_chat_model_stream with token: ", token)
+        self._redraw()
+
+    def on_llm_new_token(self, token, **kwargs):
+        """Print out Markdown when we get a new token, using rich.live so it updates the whole terminal"""
+        if type(token) != str:
+            return
+
+        self.buffer.append(token)
+        print("on_llm_new_token with token: ", token)
         self._redraw()
 
     def on_tool_start(self, serialized, input_str, **kwargs):
