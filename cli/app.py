@@ -1,6 +1,7 @@
 from heart.si import SI
 from langchain.schema import HumanMessage
 from langchain.schema.runnable.config import RunnableConfig
+from langchain_core._api.beta_decorator import LangChainBetaWarning
 from pathlib import Path
 from prompt_toolkit import PromptSession
 from prompt_toolkit.history import FileHistory
@@ -9,7 +10,9 @@ from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
 from rich.progress import Progress, SpinnerColumn, TextColumn
-import asyncio, click, uuid
+import asyncio, click, uuid, warnings
+
+warnings.filterwarnings("ignore", category=LangChainBetaWarning)
 
 # Initialize console for rich output
 console = Console()
