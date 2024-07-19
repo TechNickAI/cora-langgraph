@@ -1,4 +1,4 @@
-from heart.si import SI, RichLiveCallbackHandler
+from heart.si import SI
 from langchain.schema import HumanMessage
 from langchain.schema.runnable.config import RunnableConfig
 from pathlib import Path
@@ -9,7 +9,6 @@ from rich.console import Console
 from rich.live import Live
 from rich.markdown import Markdown
 from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.panel import Panel
 import asyncio, click, uuid
 
 # Initialize console for rich output
@@ -30,6 +29,44 @@ session = PromptSession(
 )
 
 
+def process_event(event, live):
+    output = ""
+
+    if event["event"] == "on_chat_model_start":
+        output = "\nThinking..."
+    elif event["event"] == "on_chat_model_stream":
+        if "chunk" in event["data"]:
+            chunk = event["data"]["chunk"]
+            if hasattr(chunk, "content"):
+                if isinstance(chunk.content, str):
+                    # Anthropic format
+                    output = chunk.content
+                elif isinstance(chunk.content, list) and chunk.content:
+                    # OpenAI format
+                    output = chunk.content[0].get("text", "")
+    elif event["event"] == "on_tool_start":
+        tool_name = event.get("name", "Unknown tool")
+        output = f"🔍 Searching using {tool_name}..."
+    elif event["event"] == "on_tool_end":
+        output = "✅ Search complete"
+    elif event["event"] == "on_chain_end" and event["name"] == "LangGraph":
+        final_message = event["data"]["output"]["messages"][-1]
+        if hasattr(final_message, "content"):
+            if isinstance(final_message.content, str):
+                # Anthropic format
+                output = final_message.content
+            elif isinstance(final_message.content, list) and final_message.content:
+                # OpenAI format
+                output = final_message.content[0].get("text", "")
+            live.update(Markdown(output))
+            return
+
+    if output:
+        current_content = live.renderable.markup
+        updated_content = current_content + output
+        live.update(Markdown(updated_content))
+
+
 async def process_query(query, config):
     # Pre-process query with Groq
     with Progress(
@@ -43,6 +80,7 @@ async def process_query(query, config):
         llm_provider = processed_query.llm_provider
         enhanced_query = processed_query.enhanced_query
         progress.update(task, completed=True)
+
     console.print(Markdown(f"**I understand you're asking about:** {enhanced_query}"))
 
     # Create agent graph with updated llm_provider
@@ -53,30 +91,13 @@ async def process_query(query, config):
     agent_graph = SI.create_agent_graph(settings)
 
     # Execute query with streaming
-    with Live(Markdown(f"Crafting a response using *{llm_provider}*...")) as live:
-        # Create custom callback handler
-        callback_handler = RichLiveCallbackHandler(live)
-        # config["callbacks"] = [callback_handler]
-        # await agent_graph.ainvoke({"messages": [HumanMessage(content=processed_query.enhanced_query)]}, config)
-
-        buffer = []
+    with Live(Markdown("")) as live:
         async for event in agent_graph.astream_events(
             {"messages": [HumanMessage(content=processed_query.enhanced_query)]},
             config=config,
             version="v2",
         ):
-            if event["event"] == "on_chat_model_stream":
-                chunk = event["data"]["chunk"]
-                if isinstance(chunk.content, list):
-                    if chunk.content and chunk.content[0]["type"] == "text":
-                        buffer.append(chunk.content[0]["text"])
-                else:
-                    buffer.append(chunk.content)
-            elif event["event"] == "on_tool_start" and llm_provider == "openai":
-                if event["name"] == "tavily_search_results_json":
-                    buffer.append("Searching the web for up to date information...\n")
-
-            live.update(Markdown("".join(buffer)))
+            process_event(event, live)
 
 
 @click.command()
