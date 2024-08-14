@@ -48,6 +48,8 @@ frozenlist==1.4.1
     #   aiosignal
 fsspec==2024.6.1
     # via huggingface-hub
+greenlet==3.0.3
+    # via sqlalchemy
 groq==0.9.0
     # via langchain-groq
 h11==0.14.0
@@ -68,7 +70,9 @@ idna==3.7
     #   requests
     #   yarl
 jiter==0.5.0
-    # via anthropic
+    # via
+    #   anthropic
+    #   openai
 jsonpatch==1.33
     # via langchain-core
 jsonpointer==3.0.0
@@ -79,7 +83,7 @@ langchain-anthropic==0.1.20
     # via -r requirements/requirements.in
 langchain-community==0.2.7
     # via -r requirements/requirements.in
-langchain-core==0.2.20
+langchain-core==0.2.32
     # via
     #   langchain
     #   langchain-anthropic
@@ -90,7 +94,7 @@ langchain-core==0.2.20
     #   langgraph
 langchain-groq==0.1.6
     # via -r requirements/requirements.in
-langchain-openai==0.1.16
+langchain-openai==0.1.21
     # via -r requirements/requirements.in
 langchain-text-splitters==0.2.2
     # via langchain
@@ -117,7 +121,7 @@ numpy==1.26.4
     # via
     #   langchain
     #   langchain-community
-openai==1.35.14
+openai==1.40.6
     # via langchain-openai
 orjson==3.10.6
     # via langsmith
@@ -186,6 +190,7 @@ typing-extensions==4.12.2
     #   anthropic
     #   groq
     #   huggingface-hub
+    #   langchain-core
     #   openai
     #   pydantic
     #   pydantic-core
